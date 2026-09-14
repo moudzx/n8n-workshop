@@ -13,7 +13,7 @@ Built during a workshop by Khwarzime Lebanon.
 - Telegram bot: message @BotFather on Telegram, send `/newbot`, follow the prompts, and it'll give you a token. Telegram bots can't message you first. Open a chat with your new bot and send it literally anything
 
 
-## 🕵️ STAGE 1 — Fetch & Clean Jobs
+## STAGE 1 — Fetch & Clean Jobs
 
 ### 1. Run Manually (`manualTrigger`)
 Starting point for manual execution.
@@ -98,7 +98,7 @@ Adds fields: `keyword_hits`, `keywords_found`.
 
 ---
 
-## 🧠 STAGE 2 — AI Brain
+## STAGE 2 — AI Brain
 
 ### 14. Pack Jobs for AI (`code`)
 Collapses N job items into **ONE item** so the AI scores all in a single request (avoids Gemini free-tier rate limits). Builds `jobs_text` with format:
@@ -152,7 +152,7 @@ Keeps jobs where:
 
 ---
 
-## 🚀 STAGE 3 — Deliver
+## STAGE 3 — Deliver
 
 ### 20. Save to Job Tracker (`googleSheets`)
 - Operation: `appendOrUpdate`
@@ -197,7 +197,7 @@ Returns `{ to, subject, html }`.
 
 ---
 
-## 🔗 Connection Flow
+## Connection Flow
 
 ```
 Run Manually ──┐
@@ -212,7 +212,7 @@ Scores Format (JSON) ──► (ai_outputParser) ──► AI Recruiter
 
 ---
 
-## ⚙️ Settings & Metadata
+## Settings & Metadata
 
 - `executionOrder`: `v1`
 - `timezone`: `Asia/Beirut`
@@ -222,7 +222,7 @@ Scores Format (JSON) ──► (ai_outputParser) ──► AI Recruiter
 
 ---
 
-## ✅ Setup Checklist
+## Setup Checklist
 
 1. **My Profile:** fill in `name`, `email`, `telegram_chat_id`
 2. **Google Sheets node:** select Document ID + Sheet name
@@ -231,21 +231,13 @@ Scores Format (JSON) ──► (ai_outputParser) ──► AI Recruiter
 
 ---
 
-## 📝 Sticky Notes (in-canvas docs)
-
-1. **Note 1 (Stage 1):** "🕵️ STAGE 1 — Fetch & clean jobs / Remotive + Remote OK + Jobicy (EMEA) → same fields → Smart Filter"
-2. **Note 2 (Stage 2):** "🧠 STAGE 2 — AI brain / Pack → Gemini scores every job vs YOUR profile → Join → Good matches (Lebanon-friendly)"
-3. **Note 3 (Stage 3):** "🚀 STAGE 3 — Deliver / 📊 Sheet = tracker (no duplicates: matched on url) / 📱 Telegram = top 3 hot jobs (8+) / 📧 Gmail = daily digest / ▶️ Then click **Publish** → runs every morning, forever."
-
----
-
-## 📄 License
+## License
 
 Free to use and adapt for personal or educational purposes.
 
 ---
 
-## 🙌 Credits
+## Credits
 
 Built with [n8n](https://n8n.io) + Google Gemini. Job data from [Remotive](https://remotive.com), [Remote OK](https://remoteok.com), and [Jobicy](https://jobicy.com) — always apply via the original link.
 
