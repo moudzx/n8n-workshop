@@ -1,0 +1,1020 @@
+{
+  "name": "03 · AI Internship Hunter — FINAL",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🕵️ STAGE 1 — Fetch & clean jobs\nRemotive + Remote OK + Jobicy (EMEA) → same fields → Smart Filter",
+        "height": 110,
+        "width": 1500,
+        "color": 4
+      },
+      "id": "2b156c9c-3e5f-4f61-ba99-3d86260abad8",
+      "name": "Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        60,
+        -330
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "a631f162-8839-41c6-9d1f-48e0c87dc253",
+      "name": "Run Manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        100,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3be82afd-5e8a-4487-8ed9-904ae378b346",
+              "name": "name",
+              "value": "Your Name",
+              "type": "string"
+            },
+            {
+              "id": "76010bb4-b690-4bc1-b5e1-df2a3b2d9236",
+              "name": "email",
+              "value": "you@example.com",
+              "type": "string"
+            },
+            {
+              "id": "065e104b-ae34-487a-9c1e-eb13ed4fe494",
+              "name": "telegram_chat_id",
+              "value": "PASTE_YOUR_CHAT_ID",
+              "type": "string"
+            },
+            {
+              "id": "73c51e00-4d6d-4068-8a6d-4afc0ce3abef",
+              "name": "level",
+              "value": "3rd-year Computer Science student in Lebanon, looking for an internship or junior role",
+              "type": "string"
+            },
+            {
+              "id": "5253035a-2e6b-4e48-b503-d57dadc2107c",
+              "name": "skills",
+              "value": "Java, Python, OOP, Data Structures, SQL, Git, HTML, CSS, JavaScript, basic React, Linux",
+              "type": "string"
+            },
+            {
+              "id": "827e16e9-915d-44ad-8c47-c056d21640b3",
+              "name": "interests",
+              "value": "backend, web development, data, AI and automation",
+              "type": "string"
+            },
+            {
+              "id": "348d71ed-c630-4d5d-9f64-4e2e54845b8d",
+              "name": "keywords",
+              "value": "intern, internship, junior, entry level, graduate, trainee, java, python, javascript, typescript, react, node, backend, frontend, full stack, sql, data, ai, machine learning, automation, qa",
+              "type": "string"
+            },
+            {
+              "id": "3ff47da0-2bd7-4a81-99c8-1a9a0dabe2f7",
+              "name": "max_jobs_for_ai",
+              "value": 20,
+              "type": "number"
+            },
+            {
+              "id": "93b44117-0533-4cca-a756-affce7adf42d",
+              "name": "min_score",
+              "value": 6,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e600c469-9f12-42a5-b45a-dd1c4a24f103",
+      "name": "My Profile",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://remotive.com/api/remote-jobs",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "category",
+              "value": "software-dev"
+            },
+            {
+              "name": "limit",
+              "value": "60"
+            }
+          ]
+        }
+      },
+      "id": "816f8100-deeb-4e58-93da-0ff6ccbf6462",
+      "name": "Remotive API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        -40
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "jobs",
+        "options": {}
+      },
+      "id": "94c6c066-f23a-4fa3-88d3-b779019de514",
+      "name": "Split Remotive Jobs",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        780,
+        -40
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "77864f7f-3cb2-4c90-855e-d86b222d69b2",
+              "name": "source",
+              "value": "Remotive",
+              "type": "string"
+            },
+            {
+              "id": "ccd14c81-addc-4c2d-89fd-7bd42a4c3cc4",
+              "name": "title",
+              "value": "={{ $json.title || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "483f066c-4cf3-4463-a480-20701a7944be",
+              "name": "company",
+              "value": "={{ $json.company_name || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "1c14841e-3720-4666-bddf-7c4b93d67d27",
+              "name": "location",
+              "value": "={{ $json.candidate_required_location || 'Not specified' }}",
+              "type": "string"
+            },
+            {
+              "id": "5f8f4a63-70e7-46fc-9845-ab74ff097eb1",
+              "name": "tags",
+              "value": "={{ ($json.tags || []).join(', ') }}",
+              "type": "string"
+            },
+            {
+              "id": "cb5b8c10-718c-4ac1-a65b-21585979a1a9",
+              "name": "posted",
+              "value": "={{ String($json.publication_date || '').slice(0, 10) }}",
+              "type": "string"
+            },
+            {
+              "id": "dfb733d4-9b12-4ef5-9b31-ffa2c7fbbf7f",
+              "name": "url",
+              "value": "={{ $json.url || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "bcc1ea9a-4880-4003-b894-3346ea888dd6",
+              "name": "description",
+              "value": "={{ String($json.description || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\\s+/g, ' ').trim().slice(0, 600) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "340e2b70-ee4d-4efe-ad83-2bb839882e62",
+      "name": "Clean Remotive",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1000,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://remoteok.com/api",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (n8n student workshop)"
+            }
+          ]
+        }
+      },
+      "id": "3ebb8934-0c88-40f5-a7ea-d654d5841377",
+      "name": "Remote OK API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        160
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7156a201-8e57-4043-b76b-30ca74207962",
+              "name": "source",
+              "value": "Remote OK",
+              "type": "string"
+            },
+            {
+              "id": "f30dca82-3e4d-491a-a18a-04251963d4ff",
+              "name": "title",
+              "value": "={{ $json.position || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "88a9fdb2-7bef-4348-a07f-27f784fcc050",
+              "name": "company",
+              "value": "={{ $json.company || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "13cfbb29-a857-430f-92ba-8e0f64b7804e",
+              "name": "location",
+              "value": "={{ $json.location || 'Worldwide' }}",
+              "type": "string"
+            },
+            {
+              "id": "9ef2b0e3-a6f2-4ce6-b219-a581203e98e5",
+              "name": "tags",
+              "value": "={{ ($json.tags || []).join(', ') }}",
+              "type": "string"
+            },
+            {
+              "id": "b598d9f1-7dfc-4a09-a65b-876438fb3544",
+              "name": "posted",
+              "value": "={{ String($json.date || '').slice(0, 10) }}",
+              "type": "string"
+            },
+            {
+              "id": "fad2f4ac-3a85-400f-9c6a-5c2c1bf3663e",
+              "name": "url",
+              "value": "={{ $json.url || $json.apply_url || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "d0b130ef-994c-4d98-b736-fdecfc948db3",
+              "name": "description",
+              "value": "={{ String($json.description || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\\s+/g, ' ').trim().slice(0, 600) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f44bc217-73f7-413a-861b-1c7a800e7a27",
+      "name": "Clean Remote OK",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1000,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://jobicy.com/api/v2/remote-jobs",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "count",
+              "value": "50"
+            },
+            {
+              "name": "geo",
+              "value": "emea"
+            }
+          ]
+        }
+      },
+      "id": "4d17b1d9-03ea-4e75-8357-adba67943a6f",
+      "name": "Jobicy API (EMEA)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        360
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "jobs",
+        "options": {}
+      },
+      "id": "d011896a-b546-46ee-bcee-d5c93d8af6df",
+      "name": "Split Jobicy Jobs",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        780,
+        360
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "20133b3c-453a-4a5c-9323-640f4560e2e6",
+              "name": "source",
+              "value": "Jobicy",
+              "type": "string"
+            },
+            {
+              "id": "6781d00d-574e-4488-8b6a-93200eb920c4",
+              "name": "title",
+              "value": "={{ String($json.jobTitle || '').replace(/&#8211;/g, '-').replace(/&amp;/g, '&') }}",
+              "type": "string"
+            },
+            {
+              "id": "ee0631cb-96ed-48f5-80e2-13b9ae67efe7",
+              "name": "company",
+              "value": "={{ $json.companyName || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "dee1197f-52bc-44c2-b882-9555af5e6e38",
+              "name": "location",
+              "value": "={{ $json.jobGeo || 'EMEA' }}",
+              "type": "string"
+            },
+            {
+              "id": "5de15d5e-f149-42ca-aa87-1ea2e9a8059f",
+              "name": "tags",
+              "value": "={{ [].concat($json.jobIndustry || []).join(', ').replace(/&amp;/g, '&') }}",
+              "type": "string"
+            },
+            {
+              "id": "0114663e-7d6f-4567-977f-2b9db216f910",
+              "name": "posted",
+              "value": "={{ String($json.pubDate || '').slice(0, 10) }}",
+              "type": "string"
+            },
+            {
+              "id": "4fa21811-34cf-43e4-bb3f-5f9e315cd5d8",
+              "name": "url",
+              "value": "={{ $json.url || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "ac214203-c465-43ff-84c2-6238ed3e9f33",
+              "name": "description",
+              "value": "={{ String($json.jobExcerpt || $json.jobDescription || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\\s+/g, ' ').trim().slice(0, 600) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f9591a36-ffa2-4a0d-ad2e-30d83e9bcb8e",
+      "name": "Clean Jobicy",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1000,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 3
+      },
+      "id": "7c703df5-442a-462f-9eed-86278ee612e1",
+      "name": "Combine Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1220,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 🧹 SMART FILTER — runs BEFORE the AI to save tokens & rate limits\n// 1) drop broken items  2) remove duplicates (same URL)  3) keep jobs matching my keywords\n// 4) rank by number of keyword hits  5) send only the top N to the AI\nconst profile = $('My Profile').first().json;\nconst keywords = String(profile.keywords || '')\n  .split(',')\n  .map(k => k.trim().toLowerCase())\n  .filter(Boolean);\nconst escapeRe = s => s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\nconst patterns = keywords.map(k => ({ k, re: new RegExp(`(^|[^a-z0-9])${escapeRe(k)}([^a-z0-9]|$)`, 'i') }));\n\nconst seen = new Set();\nconst kept = [];\nfor (const item of $input.all()) {\n  const job = item.json;\n  if (!job.url || !job.title || seen.has(job.url)) continue; // broken or duplicate\n  seen.add(job.url);\n  const text = `${job.title} ${job.tags} ${job.description}`;\n  const hits = patterns.filter(p => p.re.test(text)).map(p => p.k);\n  if (hits.length > 0) kept.push({ json: { ...job, keyword_hits: hits.length, keywords_found: hits.join(', ') } });\n}\n\nkept.sort((a, b) => b.json.keyword_hits - a.json.keyword_hits);\nreturn kept.slice(0, Number(profile.max_jobs_for_ai) || 20);\n"
+      },
+      "id": "e3793364-cdbc-444c-b904-94c350742ecf",
+      "name": "Smart Filter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "2795bab9-2af9-4e75-affb-3250532a3731",
+      "name": "Every Morning 8:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        100,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 🧠 STAGE 2 — AI brain\nPack → Gemini scores every job vs YOUR profile → Join → Good matches (Lebanon-friendly)",
+        "height": 110,
+        "width": 1080,
+        "color": 6
+      },
+      "id": "b821a6f5-66b9-4c63-bcf2-6849dfb4ac7b",
+      "name": "Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        -330
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 📦 PACK — turn N job items into ONE item, so the AI scores all jobs in ONE request\n// (free Gemini keys allow ~10 requests/minute — 1 call is faster and never hits the limit)\nconst jobs = $input.all().map((item, index) => ({ id: index, ...item.json }));\nconst jobs_text = jobs\n  .map(j => `[${j.id}] ${j.title} @ ${j.company}\\nLocation: ${j.location} | Source: ${j.source} | Tags: ${j.tags}\\n${j.description}`)\n  .join('\\n\\n---\\n\\n');\nreturn [{ json: { count: jobs.length, jobs, jobs_text } }];\n"
+      },
+      "id": "4de66ed7-108e-44d8-ba8d-c6877f0cb1e5",
+      "name": "Pack Jobs for AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=CANDIDATE\nName: {{ $('My Profile').first().json.name }}\nLevel: {{ $('My Profile').first().json.level }}\nSkills: {{ $('My Profile').first().json.skills }}\nInterests: {{ $('My Profile').first().json.interests }}\nLives in: Lebanon\n\nJOBS ({{ $json.count }} total)\n{{ $json.jobs_text }}\n\nTASK\nEvaluate EVERY job above for this candidate and return one entry per job:\n- id: the number shown in [brackets]\n- score: 0-10 fit for THIS candidate (10 = perfect). Senior / lead / 4+ years roles must score 3 or less.\n- lebanon_ok: true if someone living in Lebanon can realistically apply (Worldwide, Anywhere, EMEA, MENA, Middle East, Lebanon, or no restriction). false if limited to another specific country or region (e.g. \"USA only\", \"UK\", \"Europe only\").\n- reason: ONE short punchy sentence explaining the score\n- matched_skills: candidate skills this job uses (max 4)\n- missing_skills: the 1-3 most important skills the candidate should learn for it",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a brutally honest but kind tech recruiter. You help university Computer Science and Engineering students in Lebanon find internships and junior jobs they can REALLY get. You always answer in valid JSON."
+            }
+          ]
+        }
+      },
+      "id": "d8c60f28-ba8f-4cff-af3a-b37da6524b5e",
+      "name": "AI Recruiter",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1920,
+        160
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "70e31f77-3649-4bcb-af4b-e43d41808f70",
+      "name": "Gemini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1880,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"matches\": [\n    {\n      \"id\": 0,\n      \"score\": 8,\n      \"lebanon_ok\": true,\n      \"reason\": \"Junior React role open worldwide - strong match for your JS skills\",\n      \"matched_skills\": [\n        \"JavaScript\",\n        \"React\"\n      ],\n      \"missing_skills\": [\n        \"TypeScript\",\n        \"Testing\"\n      ]\n    }\n  ]\n}"
+      },
+      "id": "1836bc27-0dc0-4472-979b-0aceefd48d53",
+      "name": "Scores Format (JSON)",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2080,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 🔗 JOIN — attach the AI's score to each original job (matched by id)\nconst jobs = $('Pack Jobs for AI').first().json.jobs;\nconst matches = $input.first().json.output?.matches ?? [];\nconst list = arr => (Array.isArray(arr) ? arr.join(', ') : String(arr ?? ''));\n\nreturn matches\n  .filter(m => jobs[m.id])\n  .map(m => {\n    const job = jobs[m.id];\n    return {\n      json: {\n        date_found: $now.toFormat('yyyy-MM-dd'),\n        score: Number(m.score) || 0,\n        title: job.title,\n        company: job.company,\n        location: job.location,\n        lebanon_ok: m.lebanon_ok === true || m.lebanon_ok === 'true' ? 'YES' : 'NO',\n        reason: m.reason,\n        matched_skills: list(m.matched_skills),\n        missing_skills: list(m.missing_skills),\n        source: job.source,\n        url: job.url,\n      },\n    };\n  })\n  .sort((a, b) => b.json.score - a.json.score);\n"
+      },
+      "id": "43a1979b-f2ca-4f91-a857-32d28393576d",
+      "name": "Join Scores + Jobs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2280,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9c0dd97c-db50-459e-999c-e76810714218",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": "={{ $('My Profile').first().json.min_score }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "6de603e1-d3b3-45e2-85fd-bec4adaaa6cd",
+              "leftValue": "={{ $json.lebanon_ok }}",
+              "rightValue": "YES",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5c4ceab1-fbc1-44d9-b2a7-c1577e42069f",
+      "name": "Good Matches Only",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2500,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 🚀 STAGE 3 — Deliver\n📊 Sheet = tracker (no duplicates: matched on url)\n📱 Telegram = top 3 hot jobs (8+)\n📧 Gmail = daily digest\n\n▶️ Then click **Publish** → runs every morning, forever.",
+        "height": 170,
+        "width": 720,
+        "color": 3
+      },
+      "id": "79ee7cb1-b4f5-4f91-b43f-c4c7a935c57c",
+      "name": "Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2740,
+        -330
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": ""
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "url"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "b166c3ee-cd39-4b9e-a9ce-1a99a934b6ac",
+      "name": "Save to Job Tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2780,
+        -60
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7fe93ff8-76e3-4145-9be2-87ab34a95562",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 8,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a5c0fe3f-4cd9-4810-8351-fb3822b421dc",
+      "name": "Hot Jobs (8+)",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2780,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "id": "ca09bc15-3d64-4616-93ec-ce1b8d7eac72",
+      "name": "Top 3 Only",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        3000,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('My Profile').first().json.telegram_chat_id }}",
+        "text": "=🔥 {{ $json.score }}/10 — {{ $json.title }}\n🏢 {{ $json.company }}\n📍 {{ $json.location }}\n\n💡 {{ $json.reason }}\n📚 Learn next: {{ $json.missing_skills }}\n\n👉 {{ $json.url }}\n(via {{ $json.source }})",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "833e8553-9b62-466c-8ed3-00188770e651",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3220,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 📧 DIGEST — build one beautiful HTML email from all good matches\nconst p = $('My Profile').first().json;\nconst jobs = $input.all().map(i => i.json);\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nconst color = s => (s >= 8 ? '#16a34a' : s >= 6 ? '#ca8a04' : '#6b7280');\n\nconst cards = jobs.map(j => `\n  <tr><td style=\"padding:14px 16px;border-bottom:1px solid #eee;font-family:Arial,sans-serif\">\n    <div style=\"font-size:13px;color:#fff;background:${color(j.score)};display:inline-block;padding:2px 8px;border-radius:10px;font-weight:bold\">${esc(j.score)}/10</div>\n    <div style=\"font-size:16px;font-weight:bold;margin:6px 0 2px\">${esc(j.title)}</div>\n    <div style=\"font-size:13px;color:#555\">${esc(j.company)} · ${esc(j.location)}</div>\n    <div style=\"font-size:13px;margin:6px 0\">💡 ${esc(j.reason)}</div>\n    <div style=\"font-size:12px;color:#555\">✅ ${esc(j.matched_skills)}<br>📚 Learn next: ${esc(j.missing_skills)}</div>\n    <a href=\"${esc(j.url)}\" style=\"display:inline-block;margin-top:8px;font-size:13px;color:#ea4b71;font-weight:bold\">View &amp; apply on ${esc(j.source)} →</a>\n  </td></tr>`).join('');\n\nconst html = `\n<div style=\"max-width:620px;margin:auto;border:1px solid #eee;border-radius:12px;overflow:hidden\">\n  <div style=\"background:#1f1f2e;color:#fff;padding:20px 16px;font-family:Arial,sans-serif\">\n    <div style=\"font-size:20px;font-weight:bold\">🎯 Your AI Internship Hunter</div>\n    <div style=\"font-size:13px;opacity:.8\">Hi ${esc(p.name)} — ${jobs.length} match(es) found on ${$now.toFormat('dd LLL yyyy')}</div>\n  </div>\n  <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\">${cards}</table>\n  <div style=\"padding:12px 16px;font-size:11px;color:#888;font-family:Arial,sans-serif\">\n    Built with n8n + Gemini. Job data from Remotive, Remote OK and Jobicy — always apply via the original link.\n  </div>\n</div>`;\n\nreturn [{ json: { to: p.email, subject: `🎯 ${jobs.length} job match(es) for you — ${$now.toFormat('dd LLL')}`, html } }];\n"
+      },
+      "id": "107a7091-be14-446b-8b9c-ee35f16d1c81",
+      "name": "Build Email Digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2780,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "32006799-8684-45e0-8b3c-28678412a4c4",
+      "name": "Send Gmail Digest",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3000,
+        380
+      ]
+    }
+  ],
+  "connections": {
+    "Run Manually": {
+      "main": [
+        [
+          {
+            "node": "My Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "My Profile": {
+      "main": [
+        [
+          {
+            "node": "Remotive API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Remote OK API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Jobicy API (EMEA)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remotive API": {
+      "main": [
+        [
+          {
+            "node": "Split Remotive Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Remotive Jobs": {
+      "main": [
+        [
+          {
+            "node": "Clean Remotive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remote OK API": {
+      "main": [
+        [
+          {
+            "node": "Clean Remote OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jobicy API (EMEA)": {
+      "main": [
+        [
+          {
+            "node": "Split Jobicy Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Jobicy Jobs": {
+      "main": [
+        [
+          {
+            "node": "Clean Jobicy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Remotive": {
+      "main": [
+        [
+          {
+            "node": "Combine Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Remote OK": {
+      "main": [
+        [
+          {
+            "node": "Combine Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Clean Jobicy": {
+      "main": [
+        [
+          {
+            "node": "Combine Sources",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Combine Sources": {
+      "main": [
+        [
+          {
+            "node": "Smart Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Morning 8:00": {
+      "main": [
+        [
+          {
+            "node": "My Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Smart Filter": {
+      "main": [
+        [
+          {
+            "node": "Pack Jobs for AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pack Jobs for AI": {
+      "main": [
+        [
+          {
+            "node": "AI Recruiter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Recruiter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scores Format (JSON)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Recruiter",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Recruiter": {
+      "main": [
+        [
+          {
+            "node": "Join Scores + Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Join Scores + Jobs": {
+      "main": [
+        [
+          {
+            "node": "Good Matches Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Good Matches Only": {
+      "main": [
+        [
+          {
+            "node": "Save to Job Tracker",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hot Jobs (8+)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Email Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hot Jobs (8+)": {
+      "main": [
+        [
+          {
+            "node": "Top 3 Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Top 3 Only": {
+      "main": [
+        [
+          {
+            "node": "Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email Digest": {
+      "main": [
+        [
+          {
+            "node": "Send Gmail Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Beirut"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
