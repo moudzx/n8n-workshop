@@ -1,0 +1,66 @@
+remove tags from description
+
+{{ String($json.description || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim().slice(0, 600) }}
+
+
+
+prompt
+
+
+CANDIDATE
+Name: {{ $('My Profile1').first().json.name }}
+Level: {{ $('My Profile1').first().json.level }}
+Skills: {{ $('My Profile1').first().json.skills }}
+Interests: {{ $('My Profile1').first().json.interests }}
+Lives in: Lebanon
+
+Jobs
+{{ $json.jobs_text }}
+TASK
+Evaluate EVERY job above for this candidate and return one entry per job:
+- id: the number shown in [brackets]
+- score: 0-10 fit for THIS candidate (10 = perfect). Senior / lead / 4+ years roles must score 3 or less.
+- lebanon_ok: true if someone living in Lebanon can realistically apply (Worldwide, Anywhere, EMEA, MENA, Middle East, Lebanon, or no restriction). false if limited to another specific country or region (e.g. "USA only", "UK", "Europe only").
+- reason: ONE short punchy sentence explaining the score
+- matched_skills: candidate skills this job uses (max 4)
+- missing_skills: the 1-3 most important skills the candidate should learn for it
+
+
+
+code node after gemini
+
+// 🔗 JOIN — attach the AI's score to each original job (matched by id)
+const jobs = $('Pack Jobs for AI').first().json.jobs;
+const matches = $input.first().json.output?.matches ?? [];
+const list = arr => (Array.isArray(arr) ? arr.join(', ') : String(arr ?? ''));
+
+return matches
+  .filter(m => jobs[m.id])
+  .map(m => {
+    const job = jobs[m.id];
+    return {
+      json: {
+        date_found: $now.toFormat('yyyy-MM-dd'),
+        score: Number(m.score) || 0,
+        title: job.title,
+        company: job.company,
+        location: job.location,
+        lebanon_ok: m.lebanon_ok === true || m.lebanon_ok === 'true' ? 'YES' : 'NO',
+        reason: m.reason,
+        matched_skills: list(m.matched_skills),
+        missing_skills: list(m.missing_skills),
+        source: job.source,
+        url: job.url,
+      },
+    };
+  })
+  .sort((a, b) => b.json.score - a.json.score);
+
+
+
+
+
+
+filter node
+
+
