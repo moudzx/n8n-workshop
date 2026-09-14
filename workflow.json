@@ -1,0 +1,545 @@
+{
+  "name": "AI Internship Hunter",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## STAGE 1 · FETCH\n3 free APIs, zero keys. Split each response, map to ONE common schema (source, title, company, location, tags, posted, url, description), then de-dupe + keyword-filter down to the top N.",
+        "height": 220,
+        "width": 460
+      },
+      "id": "note-stage1",
+      "name": "Stage 1 note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-1180, -180]
+    },
+    {
+      "parameters": {
+        "content": "## STAGE 2 · AI BRAIN\nAll jobs go to Gemini in ONE call (not one per job) to stay under free-tier rate limits. Structured Output Parser forces clean JSON back.",
+        "height": 200,
+        "width": 420
+      },
+      "id": "note-stage2",
+      "name": "Stage 2 note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [80, -180]
+    },
+    {
+      "parameters": {
+        "content": "## STAGE 3 · DELIVER\nGood Matches (score ≥ 6 & Lebanon-friendly) fan out to: Google Sheet tracker, a Telegram alert for the hottest 3, and an HTML Gmail digest of everything.",
+        "height": 200,
+        "width": 460
+      },
+      "id": "note-stage3",
+      "name": "Stage 3 note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1080, -180]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "trigger-schedule",
+      "name": "Every Morning 8:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-1620, 260]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "1", "name": "name", "type": "string", "value": "Moss" },
+            { "id": "2", "name": "level", "type": "string", "value": "Junior / recent CS graduate" },
+            { "id": "3", "name": "skills", "type": "string", "value": "Java, JavaScript, Python, C, SQL, REST APIs, Git, OOP" },
+            { "id": "4", "name": "interests", "type": "string", "value": "backend development, automation, AI engineering, cybersecurity" },
+            { "id": "5", "name": "keywords", "type": "string", "value": "junior, entry level, graduate, intern, backend, java, python, javascript" },
+            { "id": "6", "name": "max_jobs_for_ai", "type": "number", "value": 20 },
+            { "id": "7", "name": "telegram_chat_id", "type": "string", "value": "REPLACE_WITH_YOUR_CHAT_ID" },
+            { "id": "8", "name": "email", "type": "string", "value": "you@example.com" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "my-profile-1",
+      "name": "My Profile1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-1400, 260]
+    },
+    {
+      "parameters": {
+        "url": "https://remotive.com/api/remote-jobs",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "category", "value": "software-dev" },
+            { "name": "limit", "value": "60" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-remotive",
+      "name": "Fetch Remotive",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-1180, 60]
+    },
+    {
+      "parameters": {
+        "url": "https://remoteok.com/api",
+        "options": {}
+      },
+      "id": "fetch-remoteok",
+      "name": "Fetch RemoteOK",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-1180, 260]
+    },
+    {
+      "parameters": {
+        "url": "https://jobicy.com/api/v2/remote-jobs",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "count", "value": "50" },
+            { "name": "geo", "value": "emea" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-jobicy",
+      "name": "Fetch Jobicy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-1180, 460]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "jobs",
+        "options": {}
+      },
+      "id": "split-remotive",
+      "name": "Split Remotive Jobs",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [-960, 60]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "cond1",
+              "leftValue": "={{ $json.position }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "remove-remoteok-notice",
+      "name": "Remove RemoteOK Notice",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [-960, 260]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "jobs",
+        "options": {}
+      },
+      "id": "split-jobicy",
+      "name": "Split Jobicy Jobs",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [-960, 460]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "1", "name": "source", "type": "string", "value": "Remotive" },
+            { "id": "2", "name": "title", "type": "string", "value": "={{ $json.title }}" },
+            { "id": "3", "name": "company", "type": "string", "value": "={{ $json.company_name }}" },
+            { "id": "4", "name": "location", "type": "string", "value": "={{ $json.candidate_required_location }}" },
+            { "id": "5", "name": "tags", "type": "string", "value": "={{ ($json.tags || []).join(', ') }}" },
+            { "id": "6", "name": "posted", "type": "string", "value": "={{ $json.publication_date }}" },
+            { "id": "7", "name": "url", "type": "string", "value": "={{ $json.url }}" },
+            { "id": "8", "name": "description", "type": "string", "value": "={{ String($json.description || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\\s+/g, ' ').trim().slice(0, 600) }}" }
+          ]
+        },
+        "options": { "includeOtherFields": false }
+      },
+      "id": "map-remotive",
+      "name": "Map Remotive",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-740, 60]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "1", "name": "source", "type": "string", "value": "Remote OK" },
+            { "id": "2", "name": "title", "type": "string", "value": "={{ $json.position }}" },
+            { "id": "3", "name": "company", "type": "string", "value": "={{ $json.company }}" },
+            { "id": "4", "name": "location", "type": "string", "value": "={{ $json.location }}" },
+            { "id": "5", "name": "tags", "type": "string", "value": "={{ ($json.tags || []).join(', ') }}" },
+            { "id": "6", "name": "posted", "type": "string", "value": "={{ $json.date }}" },
+            { "id": "7", "name": "url", "type": "string", "value": "={{ $json.url }}" },
+            { "id": "8", "name": "description", "type": "string", "value": "={{ String($json.description || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\\s+/g, ' ').trim().slice(0, 600) }}" }
+          ]
+        },
+        "options": { "includeOtherFields": false }
+      },
+      "id": "map-remoteok",
+      "name": "Map RemoteOK",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-740, 260]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "1", "name": "source", "type": "string", "value": "Jobicy" },
+            { "id": "2", "name": "title", "type": "string", "value": "={{ $json.jobTitle }}" },
+            { "id": "3", "name": "company", "type": "string", "value": "={{ $json.companyName }}" },
+            { "id": "4", "name": "location", "type": "string", "value": "={{ $json.jobGeo }}" },
+            { "id": "5", "name": "tags", "type": "string", "value": "={{ ($json.jobIndustry || []).join(', ') }}" },
+            { "id": "6", "name": "posted", "type": "string", "value": "={{ $json.pubDate }}" },
+            { "id": "7", "name": "url", "type": "string", "value": "={{ $json.url }}" },
+            { "id": "8", "name": "description", "type": "string", "value": "={{ String($json.jobExcerpt || $json.jobDescription || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\\s+/g, ' ').trim().slice(0, 600) }}" }
+          ]
+        },
+        "options": { "includeOtherFields": false }
+      },
+      "id": "map-jobicy",
+      "name": "Map Jobicy",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-740, 460]
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "id": "merge-jobs",
+      "name": "Merge Jobs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [-520, 260]
+    },
+    {
+      "parameters": {
+        "jsCode": "const profile = $('My Profile1').first().json;\nconst keywords = String(profile.keywords || '')\n  .split(',')\n  .map(k => k.trim().toLowerCase())\n  .filter(Boolean);\n\nconst escapeRe = s => s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\nconst patterns = keywords.map(k => ({\n  k,\n  re: new RegExp(`(^|[^a-z0-9])${escapeRe(k)}([^a-z0-9]|$)`, 'i'),\n}));\n\nconst seen = new Set();\nconst kept = [];\n\nfor (const item of $input.all()) {\n  const job = item.json;\n  if (!job.url || !job.title || seen.has(job.url)) continue; // broken or duplicate\n  seen.add(job.url);\n\n  const text = `${job.title} ${job.tags} ${job.description}`;\n  const hits = patterns.filter(p => p.re.test(text)).map(p => p.k);\n\n  if (hits.length > 0) {\n    kept.push({\n      json: {\n        ...job,\n        keyword_hits: hits.length,\n        keywords_found: hits.join(', '),\n      },\n    });\n  }\n}\n\nkept.sort((a, b) => b.json.keyword_hits - a.json.keyword_hits);\n\nreturn kept.slice(0, Number(profile.max_jobs_for_ai) || 20);"
+      },
+      "id": "smart-filter",
+      "name": "Smart Filter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-300, 260]
+    },
+    {
+      "parameters": {
+        "jsCode": "// PACK — turn N job items into ONE item, so the AI scores all jobs in ONE request\n// (free Gemini keys allow ~10 requests/minute — 1 call is faster and never hits the limit)\nconst jobs = $input.all().map((item, index) => ({ id: index, ...item.json }));\n\nconst jobs_text = jobs\n  .map(j => `[${j.id}] ${j.title} @ ${j.company}\\nSource: ${j.source} |\\n${j.description}`)\n  .join('\\n\\n---\\n\\n');\n\nreturn [{ json: { count: jobs.length, jobs, jobs_text } }];"
+      },
+      "id": "pack-jobs-for-ai",
+      "name": "Pack Jobs for AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-80, 260]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=CANDIDATE\nName: {{ $('My Profile1').first().json.name }}\nLevel: {{ $('My Profile1').first().json.level }}\nSkills: {{ $('My Profile1').first().json.skills }}\nInterests: {{ $('My Profile1').first().json.interests }}\nLives in: Lebanon\n\nJobs\n{{ $json.jobs_text }}\n\nTASK\nEvaluate EVERY job above for this candidate and return one entry per job:\n- id: the number shown in [brackets]\n- score: 0-10 fit for THIS candidate (10 = perfect). Senior / lead / 4+ years roles must score 3 or less.\n- lebanon_ok: true if someone living in Lebanon can realistically apply (Worldwide, Anywhere, EMEA, MENA, Middle East, Lebanon, or no restriction). false if limited to another specific country or region (e.g. \"USA only\", \"UK\", \"Europe only\").\n- reason: ONE short punchy sentence explaining the score\n- matched_skills: candidate skills this job uses (max 4)\n- missing_skills: the 1-3 most important skills the candidate should learn for it",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "ai-recruiter",
+      "name": "AI Recruiter",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [140, 260]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.6-flash",
+        "options": {}
+      },
+      "id": "gemini-chat-model",
+      "name": "Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [80, 460],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "REPLACE_ME",
+          "name": "Gemini API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "jsonSchemaExample": "{\n  \"matches\": [\n    {\n      \"id\": 0,\n      \"score\": 8,\n      \"lebanon_ok\": true,\n      \"reason\": \"Junior React role, open worldwide\",\n      \"matched_skills\": [\"JS\", \"React\"],\n      \"missing_skills\": [\"TypeScript\"]\n    }\n  ]\n}"
+      },
+      "id": "structured-output-parser",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [260, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 🔗 JOIN — attach the AI's score to each original job (matched by id)\nconst jobs = $('Pack Jobs for AI').first().json.jobs;\nconst matches = $input.first().json.output?.matches ?? [];\nconst list = arr => (Array.isArray(arr) ? arr.join(', ') : String(arr ?? ''));\n\nreturn matches\n  .filter(m => jobs[m.id])\n  .map(m => {\n    const job = jobs[m.id];\n    return {\n      json: {\n        date_found: $now.toFormat('yyyy-MM-dd'),\n        score: Number(m.score) || 0,\n        title: job.title,\n        company: job.company,\n        location: job.location,\n        lebanon_ok: m.lebanon_ok === true || m.lebanon_ok === 'true' ? 'YES' : 'NO',\n        reason: m.reason,\n        matched_skills: list(m.matched_skills),\n        missing_skills: list(m.missing_skills),\n        source: job.source,\n        url: job.url,\n      },\n    };\n  })\n  .sort((a, b) => b.json.score - a.json.score);"
+      },
+      "id": "join-scores-jobs",
+      "name": "Join Scores + Jobs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 260]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 6,
+              "operator": { "type": "number", "operation": "gte" }
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.lebanon_ok }}",
+              "rightValue": "YES",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "good-matches",
+      "name": "Good Matches",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [620, 260]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": { "__rl": true, "value": "REPLACE_WITH_SHEET_ID", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Job Tracker", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": ["url"],
+          "value": {
+            "date_found": "={{ $json.date_found }}",
+            "score": "={{ $json.score }}",
+            "title": "={{ $json.title }}",
+            "company": "={{ $json.company }}",
+            "location": "={{ $json.location }}",
+            "lebanon_ok": "={{ $json.lebanon_ok }}",
+            "reason": "={{ $json.reason }}",
+            "matched_skills": "={{ $json.matched_skills }}",
+            "missing_skills": "={{ $json.missing_skills }}",
+            "source": "={{ $json.source }}",
+            "url": "={{ $json.url }}",
+            "status": "New"
+          }
+        },
+        "options": {}
+      },
+      "id": "job-tracker",
+      "name": "Job Tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [900, 60],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_ME",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 8,
+              "operator": { "type": "number", "operation": "gte" }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "hot-jobs-only",
+      "name": "Hot Jobs Only",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [900, 260]
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "id": "limit-top-3",
+      "name": "Limit Top 3",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [1120, 260]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('My Profile1').first().json.telegram_chat_id }}",
+        "text": "=🔥 {{ $json.score }}/10 — {{ $json.title }}\n🏢 {{ $json.company }}\n📍 {{ $json.location }}\n\n💡 {{ $json.reason }}\n🧩 Learn next: {{ $json.missing_skills }}\n\n👉 {{ $json.url }}",
+        "additionalFields": {}
+      },
+      "id": "telegram-alert",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1340, 260],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_ME",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const jobs = $input.all().map(item => item.json);\n\nconst rows = jobs.map(j => `\n  <tr>\n    <td style=\"padding:8px;border-bottom:1px solid #eee;\"><strong>${j.score}/10</strong></td>\n    <td style=\"padding:8px;border-bottom:1px solid #eee;\">\n      <a href=\"${j.url}\">${j.title}</a><br/>\n      <span style=\"color:#666;\">${j.company} · ${j.location}</span><br/>\n      <span style=\"color:#888;font-size:12px;\">${j.reason}</span>\n    </td>\n  </tr>`).join('');\n\nconst html = `\n  <h2>Your AI Internship Hunter — ${$now.toFormat('yyyy-MM-dd')}</h2>\n  <p>${jobs.length} good match${jobs.length === 1 ? '' : 'es'} found today.</p>\n  <table style=\"border-collapse:collapse;width:100%;\">\n    ${rows}\n  </table>\n`;\n\nreturn [{ json: { html, count: jobs.length } }];"
+      },
+      "id": "build-email-digest",
+      "name": "Build Email Digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 460]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('My Profile1').first().json.email }}",
+        "subject": "=Your AI Internship Hunter — {{ $now.toFormat('yyyy-MM-dd') }}",
+        "message": "={{ $json.html }}",
+        "options": { "appendAttribution": false }
+      },
+      "id": "gmail-digest",
+      "name": "Gmail Digest",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1120, 460],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every Morning 8:00": {
+      "main": [[{ "node": "My Profile1", "type": "main", "index": 0 }]]
+    },
+    "My Profile1": {
+      "main": [[
+        { "node": "Fetch Remotive", "type": "main", "index": 0 },
+        { "node": "Fetch RemoteOK", "type": "main", "index": 0 },
+        { "node": "Fetch Jobicy", "type": "main", "index": 0 }
+      ]]
+    },
+    "Fetch Remotive": {
+      "main": [[{ "node": "Split Remotive Jobs", "type": "main", "index": 0 }]]
+    },
+    "Split Remotive Jobs": {
+      "main": [[{ "node": "Map Remotive", "type": "main", "index": 0 }]]
+    },
+    "Fetch RemoteOK": {
+      "main": [[{ "node": "Remove RemoteOK Notice", "type": "main", "index": 0 }]]
+    },
+    "Remove RemoteOK Notice": {
+      "main": [[{ "node": "Map RemoteOK", "type": "main", "index": 0 }]]
+    },
+    "Fetch Jobicy": {
+      "main": [[{ "node": "Split Jobicy Jobs", "type": "main", "index": 0 }]]
+    },
+    "Split Jobicy Jobs": {
+      "main": [[{ "node": "Map Jobicy", "type": "main", "index": 0 }]]
+    },
+    "Map Remotive": {
+      "main": [[{ "node": "Merge Jobs", "type": "main", "index": 0 }]]
+    },
+    "Map RemoteOK": {
+      "main": [[{ "node": "Merge Jobs", "type": "main", "index": 1 }]]
+    },
+    "Map Jobicy": {
+      "main": [[{ "node": "Merge Jobs", "type": "main", "index": 2 }]]
+    },
+    "Merge Jobs": {
+      "main": [[{ "node": "Smart Filter", "type": "main", "index": 0 }]]
+    },
+    "Smart Filter": {
+      "main": [[{ "node": "Pack Jobs for AI", "type": "main", "index": 0 }]]
+    },
+    "Pack Jobs for AI": {
+      "main": [[{ "node": "AI Recruiter", "type": "main", "index": 0 }]]
+    },
+    "Gemini Chat Model": {
+      "ai_languageModel": [[{ "node": "AI Recruiter", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [[{ "node": "AI Recruiter", "type": "ai_outputParser", "index": 0 }]]
+    },
+    "AI Recruiter": {
+      "main": [[{ "node": "Join Scores + Jobs", "type": "main", "index": 0 }]]
+    },
+    "Join Scores + Jobs": {
+      "main": [[{ "node": "Good Matches", "type": "main", "index": 0 }]]
+    },
+    "Good Matches": {
+      "main": [[
+        { "node": "Job Tracker", "type": "main", "index": 0 },
+        { "node": "Hot Jobs Only", "type": "main", "index": 0 },
+        { "node": "Build Email Digest", "type": "main", "index": 0 }
+      ]]
+    },
+    "Hot Jobs Only": {
+      "main": [[{ "node": "Limit Top 3", "type": "main", "index": 0 }]]
+    },
+    "Limit Top 3": {
+      "main": [[{ "node": "Telegram Alert", "type": "main", "index": 0 }]]
+    },
+    "Build Email Digest": {
+      "main": [[{ "node": "Gmail Digest", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Beirut"
+  },
+  "active": false,
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
